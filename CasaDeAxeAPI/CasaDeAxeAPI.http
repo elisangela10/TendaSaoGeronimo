@@ -1,0 +1,6 @@
+@CasaDeAxeAPI_HostAddress = http://localhost:5260
+
+GET {{CasaDeAxeAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
