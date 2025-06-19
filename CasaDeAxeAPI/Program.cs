@@ -25,6 +25,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
+
 
 // Configuração do banco de dados SQLite
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
