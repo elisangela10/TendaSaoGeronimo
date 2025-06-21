@@ -8,8 +8,9 @@ using System.Text;
 
 namespace CasaDeAxeAPI.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
+ 
     public class UserController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

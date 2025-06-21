@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 
 namespace CasaDeAxeAPI.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
+  
     public class FileUploadController : ControllerBase
     {
         // Define o diretório onde os arquivos serão salvos
