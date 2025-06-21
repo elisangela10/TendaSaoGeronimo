@@ -4,8 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CasaDeAxeAPI.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
+
     public class GiraController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

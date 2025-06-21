@@ -8,8 +8,9 @@ using System.Threading.Tasks;
 
 namespace CasaDeAxeAPI.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
+ 
     public class TextoPontoController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
