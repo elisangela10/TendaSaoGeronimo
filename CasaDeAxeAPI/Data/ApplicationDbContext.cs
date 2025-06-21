@@ -9,6 +9,6 @@ namespace CasaDeAxeAPI.Data
 
         public DbSet<User> Users { get; set; }
         public DbSet<Gira> Giras { get; set; }
-        public DbSet<TextoPonto> TextoPonto { get; set; }
+        public DbSet<TextoPonto> TextoPontos { get; set; } // <-- pluralizado corretamente
     }
 }

@@ -28,7 +28,7 @@ namespace CasaDeAxeAPI.Controllers
                 return BadRequest("Texto, link do YouTube ou pontos não podem ser nulos.");
             }
 
-            _context.TextoPonto.Add(textoPonto);
+            _context.TextoPontos.Add(textoPonto); // <- PLURAL
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetTextoPonto), new { id = textoPonto.Id }, textoPonto);
@@ -38,7 +38,7 @@ namespace CasaDeAxeAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TextoPonto>>> GetTextoPontos()
         {
-            var textoPontos = await _context.TextoPonto.ToListAsync();
+            var textoPontos = await _context.TextoPontos.ToListAsync(); // <- PLURAL
             return Ok(textoPontos);
         }
 
@@ -46,7 +46,7 @@ namespace CasaDeAxeAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<TextoPonto>> GetTextoPonto(int id)
         {
-            var textoPonto = await _context.TextoPonto.FindAsync(id);
+            var textoPonto = await _context.TextoPontos.FindAsync(id); // <- PLURAL
 
             if (textoPonto == null)
             {
