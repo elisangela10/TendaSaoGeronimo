@@ -1,5 +1,6 @@
 ﻿using CasaDeAxeAPI.Data;
 using CasaDeAxeAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -32,10 +33,13 @@ namespace CasaDeAxeAPI.Controllers
             if (existingUser.Status != "Ativo")
                 return Unauthorized("Usuário não está ativo.");
 
+            existingUser.UltimoLogin = DateTime.UtcNow;
+            _context.SaveChanges();
+
             var token = GenerateJwtToken(existingUser);
             return Ok(new { Token = token });
-         
         }
+
 
         private string GenerateJwtToken(User user)
         {
@@ -45,6 +49,7 @@ namespace CasaDeAxeAPI.Controllers
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Username),
+                new Claim(ClaimTypes.Name, user.Username),
                 new Claim("role", user.Role)
             };
 
@@ -64,13 +69,9 @@ namespace CasaDeAxeAPI.Controllers
             if (_context.Users.Any(u => u.Username == user.Username))
                 return BadRequest("Nome de usuário já existe.");
 
-            // Gera um ID de 3 dígitos (incremental a partir do maior existente)
-            int nextId = _context.Users.Any() ? _context.Users.Max(u => u.Id) + 1 : 100;
-            user.Id = nextId;
+            user.Id = _context.Users.Any() ? _context.Users.Max(u => u.Id) + 1 : 100;
             user.Status = "Ativo";
-
-
-            // Criptografa a senha
+            user.DataCriacao = DateTime.UtcNow;
             user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
 
             _context.Users.Add(user);
@@ -97,6 +98,32 @@ namespace CasaDeAxeAPI.Controllers
             _context.SaveChanges();
             return NoContent();
         }
+
+        [HttpGet("profile")]
+        [Authorize]
+        public IActionResult GetProfile()
+        {
+            var username = User.Identity?.Name;
+            var user = _context.Users.FirstOrDefault(u => u.Username == username);
+
+            if (user == null)
+                return NotFound("Usuário não encontrado.");
+
+            return Ok(new
+            {
+                user.Id,
+                user.NomeCompleto,
+                user.Email,
+                user.Telefone,
+                user.Username,
+                user.Role,
+                user.Status,
+                user.DataCriacao,
+                user.UltimoLogin
+            });
+        }
+
+
         [HttpGet]
         public IActionResult GetAllUsers()
         {
