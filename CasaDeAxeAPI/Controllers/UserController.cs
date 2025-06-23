@@ -16,6 +16,9 @@ namespace CasaDeAxeAPI.Controllers
         private readonly ApplicationDbContext _context;
         private readonly string _secretKey;
 
+        // Roles permitidas no sistema
+        private static readonly string[] RolesValidas = { "ADM", "PaiDeSanto", "Filho", "Assistencia" };
+
         public UserController(ApplicationDbContext context, IConfiguration config)
         {
             _context = context;
@@ -26,52 +29,45 @@ namespace CasaDeAxeAPI.Controllers
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginRequest login)
         {
-            var existingUser = _context.Users.FirstOrDefault(u => u.Username == login.Username);
-            if (existingUser == null || !BCrypt.Net.BCrypt.Verify(login.Password, existingUser.Password))
-                return Unauthorized("Usuário ou senha inválidos.");
+            try
+            {
+                var existingUser = _context.Users.FirstOrDefault(u => u.Username == login.Username);
+                if (existingUser == null || !BCrypt.Net.BCrypt.Verify(login.Password, existingUser.Password))
+                    return Unauthorized("Usuário ou senha inválidos.");
 
-            if (existingUser.Status != "Ativo")
-                return Unauthorized("Usuário não está ativo.");
+                if (existingUser.Status != "Ativo")
+                    return Unauthorized("Usuário não está ativo.");
 
-            existingUser.UltimoLogin = DateTime.UtcNow;
-            _context.SaveChanges();
+                existingUser.UltimoLogin = DateTime.UtcNow;
+                _context.SaveChanges();
 
-            var token = GenerateJwtToken(existingUser);
-            return Ok(new { Token = token }); 
+                var token = GenerateJwtToken(existingUser);
+                return Ok(new { Token = token });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro interno: {ex.Message}");
+            }
         }
 
-        private bool IsPasswordStrong(string password)
-        {
-            if (string.IsNullOrWhiteSpace(password) || password.Length < 8)
-                return false;
-
-            bool hasUpper = password.Any(char.IsUpper);
-            bool hasLower = password.Any(char.IsLower);
-            bool hasDigit = password.Any(char.IsDigit);
-            bool hasSpecial = password.Any(ch => !char.IsLetterOrDigit(ch));
-
-            return hasUpper && hasLower && hasDigit && hasSpecial;
-        }
-
-
-
+        // ✅ REGISTRO de usuário
         [HttpPost("register")]
         public IActionResult Register([FromBody] User user)
         {
             if (_context.Users.Any(u => u.Username == user.Username))
                 return BadRequest("Nome de usuário já existe.");
 
-            int nextId = _context.Users.Any() ? _context.Users.Max(u => u.Id) + 1 : 100;
-            user.Id = nextId;
-            user.Status = "Ativo"; 
-            user.DataCriacao = DateTime.UtcNow;
+            if (!RolesValidas.Contains(user.Role))
+                return BadRequest("Role inválida. Use: " + string.Join(", ", RolesValidas));
 
-            // Valida senha ANTES de criptografar
             if (!IsPasswordStrong(user.Password))
                 return BadRequest("A senha deve conter no mínimo 8 caracteres, incluindo letra maiúscula, minúscula, número e caractere especial.");
 
+            int nextId = _context.Users.Any() ? _context.Users.Max(u => u.Id) + 1 : 100;
+            user.Id = nextId;
+            user.Status = "Ativo";
+            user.DataCriacao = DateTime.UtcNow;
             user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
-
 
             _context.Users.Add(user);
             _context.SaveChanges();
@@ -89,7 +85,21 @@ namespace CasaDeAxeAPI.Controllers
             });
         }
 
-        // ✅ Gera o token JWT
+        // ✅ Validação de senha forte
+        private bool IsPasswordStrong(string password)
+        {
+            if (string.IsNullOrWhiteSpace(password) || password.Length < 8)
+                return false;
+
+            bool hasUpper = password.Any(char.IsUpper);
+            bool hasLower = password.Any(char.IsLower);
+            bool hasDigit = password.Any(char.IsDigit);
+            bool hasSpecial = password.Any(ch => !char.IsLetterOrDigit(ch));
+
+            return hasUpper && hasLower && hasDigit && hasSpecial;
+        }
+
+        // ✅ Geração de token JWT
         private string GenerateJwtToken(User user)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
@@ -112,6 +122,7 @@ namespace CasaDeAxeAPI.Controllers
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
+        // ✅ Atualiza dados do usuário
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromBody] User updatedUser)
         {
@@ -133,6 +144,7 @@ namespace CasaDeAxeAPI.Controllers
             return NoContent();
         }
 
+        // ✅ Lista todos os usuários
         [HttpGet]
         public IActionResult GetAllUsers()
         {
@@ -154,6 +166,7 @@ namespace CasaDeAxeAPI.Controllers
             return Ok(users);
         }
 
+        // ✅ Atualiza status do usuário (Ativo/Inativo)
         [HttpPatch("{id}/status")]
         public IActionResult UpdateStatus(int id, [FromQuery] string status)
         {
@@ -169,7 +182,7 @@ namespace CasaDeAxeAPI.Controllers
             return Ok($"Status atualizado para '{status}'.");
         }
 
-        // ✅ GET do usuário autenticado via token
+        // ✅ Consulta perfil do usuário autenticado via token
         [HttpGet("profile")]
         [Authorize]
         public IActionResult GetProfile()
