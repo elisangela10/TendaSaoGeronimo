@@ -29,7 +29,7 @@ namespace CasaDeAxeAPI.Controllers
                 return BadRequest("Texto, link do YouTube ou pontos não podem ser nulos.");
             }
 
-            _context.TextoPontos.Add(textoPonto); // <- PLURAL
+            _context.TextoPontos.Add(textoPonto); 
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetTextoPonto), new { id = textoPonto.Id }, textoPonto);
