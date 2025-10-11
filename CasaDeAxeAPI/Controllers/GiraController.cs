@@ -1,5 +1,5 @@
-﻿using CasaDeAxeAPI.Data;
-using CasaDeAxeAPI.Models;
+﻿using CasaDeAxe.Domain.Entities;
+using CasaDeAxe.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CasaDeAxeAPI.Controllers
