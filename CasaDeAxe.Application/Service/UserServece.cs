@@ -42,10 +42,22 @@ namespace CasaDeAxe.Application.Service
             await _userRepository.DeleteAsync(id);
         }
 
-  
+
 
         public async Task<UserResponse> RegisterAsync(UserRegisterRequest request)
         {
+            var roleId = request.RoleId > 0 ? request.RoleId : 1;
+            var statusId = request.StatusUsuarioId > 0 ? request.StatusUsuarioId : 1;
+
+           
+            var role = await _userRepository.GetRoleByIdAsync(roleId);
+            if (role == null)
+                throw new Exception("Role inválido.");
+
+            var status = await _userRepository.GetStatusByIdAsync(statusId);
+            if (status == null)
+                throw new Exception("Status inválido.");
+
             var user = new User
             {
                 NomeCompleto = request.NomeCompleto,
@@ -53,19 +65,12 @@ namespace CasaDeAxe.Application.Service
                 Telefone = request.Telefone,
                 Username = request.Username,
                 Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                RoleId = request.RoleId > 0 ? request.RoleId : 1, 
-                StatusUsuarioId = request.StatusUsuarioId > 0 ? request.StatusUsuarioId : 1 ,
+                RoleId = roleId,
+                StatusUsuarioId = statusId,
                 DataCriacao = DateTime.UtcNow
             };
 
             await _userRepository.AddAsync(user);
-            var role = await _userRepository.GetRoleByIdAsync(user.RoleId);
-            var status = await _userRepository.GetStatusByIdAsync(user.StatusUsuarioId);
-
-
-            if (role == null || status == null)
-                throw new Exception("Role ou Status inválido.");
-
 
             return new UserResponse
             {
@@ -78,12 +83,15 @@ namespace CasaDeAxe.Application.Service
                 StatusNome = status.Nome,
                 DataCriacao = user.DataCriacao
             };
-
         }
-
         Task IUserService.RegisterAsync(UserRegisterRequest request)
         {
             return RegisterAsync(request);
+        }
+
+        public Task<User?> GetByLoginAsync(string login)
+        {
+            throw new NotImplementedException();
         }
     }
 }

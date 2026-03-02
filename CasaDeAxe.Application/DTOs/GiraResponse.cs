@@ -1,8 +1,12 @@
-﻿using CasaDeAxe.Domain.Enums;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace CasaDeAxe.Domain.Entities
+namespace CasaDeAxe.Application.DTOs
 {
-    public class Gira
+    public class GiraResponse
     {
         public int Id { get; set; }
         public string Nome { get; set; }
@@ -10,8 +14,6 @@ namespace CasaDeAxe.Domain.Entities
         public string Cura { get; set; }
         public string Responsavel { get; set; }
         public DateTime DataHora { get; set; }
-        public StatusGira Status { get; set; } = StatusGira.Ativo;
-        public DateTime DataCriacao { get; set; } = DateTime.UtcNow;
-
+        public string Status { get; set; }
     }
 }

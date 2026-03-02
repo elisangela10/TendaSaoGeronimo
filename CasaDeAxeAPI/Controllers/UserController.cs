@@ -39,7 +39,8 @@ namespace CasaDeAxeAPI.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            var user = await _userRepository.GetByUsernameAsync(request.Username);
+            var user = await _userRepository.GetByLoginAsync(request.Username);
+
             if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
                 return Unauthorized("Usuário ou senha inválidos.");
 

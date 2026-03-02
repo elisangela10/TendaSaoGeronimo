@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CasaDeAxe.Domain\CasaDeAxe.Domain.csproj" />
+    <ProjectReference Include="..\CasaDeAxe.Infrastructure\CasaDeAxe.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

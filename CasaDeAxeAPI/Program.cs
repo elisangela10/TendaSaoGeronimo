@@ -100,7 +100,7 @@ app.UseSwagger(c =>
 app.UseSwaggerUI();
 
 app.UseCors("AllowAll");
-
+app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseRouting();

@@ -12,8 +12,8 @@ namespace CasaDeAxe.Domain.Interfaces
         Task DeleteAsync(int id);
         Task<Role?> GetRoleByIdAsync(int roleId);
         Task<StatusUsuario?> GetStatusByIdAsync(int statusId);
-        Task<User?> GetByUsernameAsync(string username); 
-
+        Task<User?> GetByUsernameAsync(string username);
+        Task<User?> GetByLoginAsync(string login);
 
 
     }

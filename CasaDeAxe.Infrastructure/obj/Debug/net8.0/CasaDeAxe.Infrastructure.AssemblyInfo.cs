@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CasaDeAxe.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+543b3c2f7dcd88e6bd4c78626aad21750800515b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+07d505b11f3b04d8a3294ed14fb58e8a31d77c8a")]
 [assembly: System.Reflection.AssemblyProductAttribute("CasaDeAxe.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CasaDeAxe.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

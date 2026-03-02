@@ -111,10 +111,10 @@ namespace CasaDeAxe.Infrastructure.Migrations
                 columns: new[] { "Id", "Ativo", "Nome" },
                 values: new object[,]
                 {
-                    { -4, true, "Assistencia" },
-                    { -3, true, "Filho" },
-                    { -2, true, "PaiDeSanto" },
-                    { -1, true, "ADM" }
+                    { 4, true, "Assistencia" },
+                    { 3, true, "Filho" },
+                    { 2, true, "PaiDeSanto" },
+                    { 1, true, "ADM" }
                 });
 
             migrationBuilder.InsertData(
