@@ -1,17 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace CasaDeAxe.Application.DTOs
 {
     public class CreateGiraRequest
     {
-        public string Nome { get; set; }
-        public string Descricao { get; set; }
-        public string Cura { get; set; }
-        public string Responsavel { get; set; }
+        [Required]
+        [StringLength(120, MinimumLength = 3)]
+        public string Nome { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(2000, MinimumLength = 3)]
+        public string Descricao { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(500, MinimumLength = 2)]
+        public string Cura { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(120, MinimumLength = 2)]
+        public string Responsavel { get; set; } = string.Empty;
+
+        [Required]
         public DateTime DataHora { get; set; }
     }
 }
