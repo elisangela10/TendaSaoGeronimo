@@ -16,3 +16,5 @@ C:\Users\elisa\source\repos\TendaSaoGeronimo\CasaDeAxe.Application\obj\Debug\net
 C:\Users\elisa\source\repos\TendaSaoGeronimo\CasaDeAxe.Application\obj\Debug\net8.0\CasaDeAxe.Application.pdb
 C:\Users\elisa\source\repos\TendaSaoGeronimo\CasaDeAxe.Application\obj\Debug\net8.0\CasaDeAxe.Application.genruntimeconfig.cache
 C:\Users\elisa\source\repos\TendaSaoGeronimo\CasaDeAxe.Application\obj\Debug\net8.0\ref\CasaDeAxe.Application.dll
+C:\Users\elisa\source\repos\TendaSaoGeronimo\CasaDeAxe.Application\bin\Debug\net8.0\CasaDeAxe.Infrastructure.dll
+C:\Users\elisa\source\repos\TendaSaoGeronimo\CasaDeAxe.Application\bin\Debug\net8.0\CasaDeAxe.Infrastructure.pdb

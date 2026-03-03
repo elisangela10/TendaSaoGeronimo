@@ -1,9 +1,9 @@
-﻿namespace CasaDeAxe.Application.Interfaces
+﻿using CasaDeAxe.Application.DTOs;
+
+namespace CasaDeAxe.Application.Interfaces
 {
     public interface IUserService
     {
-        Task RegisterAsync(UserRegisterRequest request);
+        Task<UserResponse> RegisterAsync(UserRegisterRequest request);
     }
-
-
 }

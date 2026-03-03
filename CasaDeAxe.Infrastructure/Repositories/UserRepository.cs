@@ -73,5 +73,18 @@ namespace CasaDeAxe.Infrastructure.Repositories
             
     
         }
+        public async Task<User?> GetByLoginAsync(string login)
+        {
+            login = login.ToLower();
+
+            return await _context.Users
+                .Include(u => u.Role)
+                .Include(u => u.StatusUsuario)
+                .FirstOrDefaultAsync(u =>
+                    u.Username == login ||
+                    u.Email.ToLower() == login
+                );
+        }
+    
     }
 }

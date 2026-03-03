@@ -3,9 +3,6 @@ using CasaDeAxe.Application.Interfaces;
 using CasaDeAxe.Domain.Entities;
 using CasaDeAxe.Domain.Interfaces;
 
-
-using System.Data;
-
 namespace CasaDeAxe.Application.Service
 {
     public class UserService : IUserService
@@ -17,33 +14,6 @@ namespace CasaDeAxe.Application.Service
             _userRepository = userRepository;
         }
 
-        public async Task<IEnumerable<User>> GetAllAsync()
-        {
-            return await _userRepository.GetAllAsync();
-        }
-
-        public async Task<User?> GetByIdAsync(int id)
-        {
-            return await _userRepository.GetByIdAsync(id);
-        }
-
-        public async Task<User> CreateAsync(User user)
-        {
-            return await _userRepository.CreateAsync(user);
-        }
-
-        public async Task<User> UpdateAsync(User user)
-        {
-            return await _userRepository.UpdateAsync(user);
-        }
-
-        public async Task DeleteAsync(int id)
-        {
-            await _userRepository.DeleteAsync(id);
-        }
-
-  
-
         public async Task<UserResponse> RegisterAsync(UserRegisterRequest request)
         {
             var user = new User
@@ -53,8 +23,8 @@ namespace CasaDeAxe.Application.Service
                 Telefone = request.Telefone,
                 Username = request.Username,
                 Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                RoleId = request.RoleId > 0 ? request.RoleId : 1, 
-                StatusUsuarioId = request.StatusUsuarioId > 0 ? request.StatusUsuarioId : 1 ,
+                RoleId = request.RoleId > 0 ? request.RoleId : -4,
+                StatusUsuarioId = request.StatusUsuarioId > 0 ? request.StatusUsuarioId : -1,
                 DataCriacao = DateTime.UtcNow
             };
 
@@ -62,10 +32,8 @@ namespace CasaDeAxe.Application.Service
             var role = await _userRepository.GetRoleByIdAsync(user.RoleId);
             var status = await _userRepository.GetStatusByIdAsync(user.StatusUsuarioId);
 
-
             if (role == null || status == null)
                 throw new Exception("Role ou Status inválido.");
-
 
             return new UserResponse
             {
@@ -78,12 +46,6 @@ namespace CasaDeAxe.Application.Service
                 StatusNome = status.Nome,
                 DataCriacao = user.DataCriacao
             };
-
-        }
-
-        Task IUserService.RegisterAsync(UserRegisterRequest request)
-        {
-            return RegisterAsync(request);
         }
     }
 }
