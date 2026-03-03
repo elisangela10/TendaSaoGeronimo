@@ -89,6 +89,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Injeção de dependências dos repositórios e serviços
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IGiraRepository, GiraRepository>();
+builder.Services.AddScoped<IGiraService, GiraService>();
 
 var app = builder.Build();
 
@@ -99,11 +101,11 @@ app.UseSwagger(c =>
 });
 app.UseSwaggerUI();
 
+app.UseRouting();
 app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseRouting();
 app.MapControllers();
 
 app.Run();
