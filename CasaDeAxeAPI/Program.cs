@@ -12,6 +12,18 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var defaultConnection = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrWhiteSpace(defaultConnection))
+{
+    throw new InvalidOperationException("ConnectionStrings:DefaultConnection não configurada. Defina via variável de ambiente ou secret manager.");
+}
+
+var jwtSecret = builder.Configuration["JwtSettings:SecretKey"];
+if (string.IsNullOrWhiteSpace(jwtSecret))
+{
+    throw new InvalidOperationException("JwtSettings:SecretKey não configurada. Defina via variável de ambiente ou secret manager.");
+}
+
 // Configuração do CORS
 builder.Services.AddCors(options =>
 {
@@ -36,7 +48,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
             ValidAudience = builder.Configuration["JwtSettings:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"] ?? string.Empty)
+                Encoding.UTF8.GetBytes(jwtSecret)
             )
         };
     });
@@ -84,11 +96,13 @@ builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 
 // Configuração do banco de dados PostgreSQL
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(defaultConnection));
 
 // Injeção de dependências dos repositórios e serviços
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IGiraRepository, GiraRepository>();
+builder.Services.AddScoped<IGiraService, GiraService>();
 
 var app = builder.Build();
 
@@ -99,11 +113,11 @@ app.UseSwagger(c =>
 });
 app.UseSwaggerUI();
 
+app.UseRouting();
 app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseRouting();
 app.MapControllers();
 
 app.Run();
