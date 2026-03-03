@@ -1,12 +1,9 @@
-﻿using CasaDeAxe.Domain.Entities;
+﻿using CasaDeAxe.Application.DTOs;
 
 namespace CasaDeAxe.Application.Interfaces
 {
     public interface IUserService
     {
-        Task RegisterAsync(UserRegisterRequest request);
-        Task<User?> GetByLoginAsync(string login);
+        Task<UserResponse> RegisterAsync(UserRegisterRequest request);
     }
-
-
 }
