@@ -4,7 +4,9 @@ using CasaDeAxe.Domain.Interfaces;
 using CasaDeAxe.Infrastructure.Data;
 using CasaDeAxe.Infrastructure.Repositories;
 using CasaDeAxe.Infrastructure.Services;
+using CasaDeAxeAPI.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -27,9 +29,9 @@ if (string.IsNullOrWhiteSpace(jwtSecret))
 // Configuração do CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", builder =>
+    options.AddPolicy("AllowAll", policy =>
     {
-        builder.AllowAnyOrigin()
+        policy.AllowAnyOrigin()
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
@@ -47,17 +49,45 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
             ValidAudience = builder.Configuration["JwtSettings:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtSecret)
-            )
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                var logger = context.HttpContext.RequestServices
+                    .GetRequiredService<ILoggerFactory>()
+                    .CreateLogger("JwtAuthentication");
+
+                logger.LogWarning(context.Exception, "Falha de autenticação JWT para {Path}", context.HttpContext.Request.Path);
+                return Task.CompletedTask;
+            }
         };
     });
-builder.Services.AddScoped<IJwtService, JwtService>();
-    
-builder.Services.AddAuthorization();
 
+builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddHealthChecks();
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var validationProblem = new ValidationProblemDetails(context.ModelState)
+        {
+            Title = "Erro de validação",
+            Status = StatusCodes.Status400BadRequest,
+            Detail = "Um ou mais campos estão inválidos.",
+            Instance = context.HttpContext.Request.Path
+        };
+
+        validationProblem.Extensions["traceId"] = context.HttpContext.TraceIdentifier;
+        return new BadRequestObjectResult(validationProblem);
+    };
+});
 
 // Configuração do Swagger/OpenAPI
 builder.Services.AddSwaggerGen(c =>
@@ -67,7 +97,7 @@ builder.Services.AddSwaggerGen(c =>
         Title = "CasaDeAxeAPI",
         Version = "v1"
     });
-    // Configuração para autenticação JWT no Swagger
+
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "JWT Authorization header usando o esquema Bearer. Exemplo: \"Authorization: Bearer {token}\"",
@@ -76,6 +106,7 @@ builder.Services.AddSwaggerGen(c =>
         Type = SecuritySchemeType.ApiKey,
         Scheme = "Bearer"
     });
+
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -87,7 +118,7 @@ builder.Services.AddSwaggerGen(c =>
                     Id = "Bearer"
                 }
             },
-            new string[] {}
+            Array.Empty<string>()
         }
     });
 });
@@ -106,6 +137,28 @@ builder.Services.AddScoped<IGiraService, GiraService>();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Startup");
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+    if (!await dbContext.Database.CanConnectAsync())
+    {
+        logger.LogError("Falha ao conectar no banco de dados durante o startup.");
+        throw new InvalidOperationException("Não foi possível conectar ao banco de dados.");
+    }
+
+    logger.LogInformation("Conexão com banco validada com sucesso no startup.");
+
+    var applyMigrations = app.Configuration.GetValue<bool>("Database:ApplyMigrationsOnStartup");
+    if (applyMigrations)
+    {
+        logger.LogInformation("Aplicando migrations no startup.");
+        await dbContext.Database.MigrateAsync();
+    }
+}
+
+app.UseGlobalExceptionHandling();
 
 app.UseSwagger(c =>
 {
@@ -119,5 +172,6 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 app.Run();
