@@ -1,42 +1,68 @@
 ﻿using CasaDeAxe.Application.DTOs;
-using Microsoft.AspNetCore.Authorization;
+using CasaDeAxe.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-[ApiController]
-[Route("api/giras")]
-public class GiraController : ControllerBase
+namespace CasaDeAxeAPI.Controllers
 {
-    private readonly GiraService _service;
-
-    public GiraController(GiraService service)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class GiraController : ControllerBase
     {
-        _service = service;
-    }
+        private readonly IGiraService _giraService;
 
-    //  Criar Gira
-    [HttpPost]
-    [Authorize(Roles = "Admin,PaiDeSanto")]
-    public async Task<IActionResult> Criar([FromBody] CreateGiraRequest request)
-    {
-        var result = await _service.CriarAsync(request);
-        return Ok(result);
-    }
+        public GiraController(IGiraService giraService)
+        {
+            _giraService = giraService;
+        }
 
-    //  Atualizar Gira
-    [HttpPut("{id}")]
-    [Authorize(Roles = "Admin,PaiDeSanto")]
-    public async Task<IActionResult> Atualizar(int id, [FromBody] UpdateGiraRequest request)
-    {
-        await _service.AtualizarAsync(id, request);
-        return NoContent();
-    }
+        [HttpGet]
+        public async Task<IActionResult> GetGiras()
+        {
+            var giras = await _giraService.GetAllAsync();
+            return Ok(giras);
+        }
 
-    //  Listar todas
-    [HttpGet]
-    [Authorize]
-    public async Task<IActionResult> Listar()
-    {
-        var giras = await _service.ObterTodasAsync();
-        return Ok(giras);
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetGiraById(int id)
+        {
+            var gira = await _giraService.GetByIdAsync(id);
+            if (gira == null)
+                return NotFound("Gira não encontrada.");
+
+            return Ok(gira);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateGira([FromBody] CreateGiraRequest request)
+        {
+            if (request == null)
+                return BadRequest("Dados inválidos.");
+
+            var created = await _giraService.CreateAsync(request);
+            return CreatedAtAction(nameof(GetGiraById), new { id = created.Id }, created);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateGira(int id, [FromBody] UpdateGiraRequest request)
+        {
+            if (request == null)
+                return BadRequest("Dados inválidos.");
+
+            var updated = await _giraService.UpdateAsync(id, request);
+            if (updated == null)
+                return NotFound("Gira não encontrada.");
+
+            return Ok(updated);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteGira(int id)
+        {
+            var deleted = await _giraService.DeleteAsync(id);
+            if (!deleted)
+                return NotFound("Gira não encontrada.");
+
+            return NoContent();
+        }
     }
 }

@@ -1,67 +1,108 @@
 ﻿using CasaDeAxe.Application.DTOs;
+using CasaDeAxe.Application.Interfaces;
 using CasaDeAxe.Domain.Entities;
 using CasaDeAxe.Domain.Enums;
-using Microsoft.EntityFrameworkCore;
-using CasaDeAxe.Infrastructure.Data;
+using CasaDeAxe.Domain.Interfaces;
+using Microsoft.Extensions.Logging;
 
-public class GiraService
+namespace CasaDeAxe.Application.Service
 {
-    private readonly ApplicationDbContext _context;
-
-    public GiraService(ApplicationDbContext context)
+    public class GiraService : IGiraService
     {
-        _context = context;
-    }
+        private readonly IGiraRepository _giraRepository;
+        private readonly ILogger<GiraService> _logger;
 
-    public async Task<GiraResponse> CriarAsync(CreateGiraRequest request)
-    {
-        var gira = new Gira
+        public GiraService(IGiraRepository giraRepository, ILogger<GiraService> logger)
         {
-            Nome = request.Nome,
-            Descricao = request.Descricao,
-            Cura = request.Cura,
-            Responsavel = request.Responsavel,
-            DataHora = request.DataHora,
-            Status = StatusGira.Ativo
-        };
+            _giraRepository = giraRepository;
+            _logger = logger;
+        }
 
-        _context.Giras.Add(gira);
-        await _context.SaveChangesAsync();
-
-        return Map(gira);
-    }
-
-    public async Task AtualizarAsync(int id, UpdateGiraRequest request)
-    {
-        var gira = await _context.Giras.FindAsync(id);
-        if (gira == null)
-            throw new Exception("Gira não encontrada.");
-
-        gira.Descricao = request.Descricao;
-        gira.Cura = request.Cura;
-        gira.Responsavel = request.Responsavel;
-        gira.DataHora = request.DataHora;
-        gira.Status = (StatusGira)request.Status;
-
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task<IEnumerable<GiraResponse>> ObterTodasAsync()
-    {
-        return await _context.Giras
-            .Select(g => Map(g))
-            .ToListAsync();
-    }
-
-    private static GiraResponse Map(Gira g) =>
-        new()
+        public async Task<IEnumerable<GiraResponse>> GetAllAsync()
         {
-            Id = g.Id,
-            Nome = g.Nome,
-            Descricao = g.Descricao,
-            Cura = g.Cura,
-            Responsavel = g.Responsavel,
-            DataHora = g.DataHora,
-            Status = g.Status.ToString()
-        };
+            var giras = await _giraRepository.GetAllAsync();
+            _logger.LogInformation("Giras listadas com sucesso. Quantidade: {Count}", giras.Count());
+            return giras.Select(MapToResponse);
+        }
+
+        public async Task<GiraResponse?> GetByIdAsync(int id)
+        {
+            var gira = await _giraRepository.GetByIdAsync(id);
+            if (gira == null)
+            {
+                _logger.LogWarning("Gira não encontrada. Id: {GiraId}", id);
+                return null;
+            }
+
+            _logger.LogInformation("Gira recuperada com sucesso. Id: {GiraId}", id);
+            return MapToResponse(gira);
+        }
+
+        public async Task<GiraResponse> CreateAsync(CreateGiraRequest request)
+        {
+            var gira = new Gira
+            {
+                Nome = request.Nome,
+                Descricao = request.Descricao,
+                Cura = request.Cura,
+                Responsavel = request.Responsavel,
+                DataHora = request.DataHora,
+                Status = StatusGira.Ativo
+            };
+
+            var created = await _giraRepository.AddAsync(gira);
+            _logger.LogInformation("Gira criada com sucesso. Id: {GiraId}, Nome: {Nome}", created.Id, created.Nome);
+            return MapToResponse(created);
+        }
+
+        public async Task<GiraResponse?> UpdateAsync(int id, UpdateGiraRequest request)
+        {
+            var gira = new Gira
+            {
+                Descricao = request.Descricao,
+                Cura = request.Cura,
+                Responsavel = request.Responsavel,
+                DataHora = request.DataHora,
+                Status = (StatusGira)request.Status
+            };
+
+            var updated = await _giraRepository.UpdateAsync(id, gira);
+            if (updated == null)
+            {
+                _logger.LogWarning("Tentativa de atualização em Gira inexistente. Id: {GiraId}", id);
+                return null;
+            }
+
+            _logger.LogInformation("Gira atualizada com sucesso. Id: {GiraId}", id);
+            return MapToResponse(updated);
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var deleted = await _giraRepository.DeleteAsync(id);
+            if (!deleted)
+            {
+                _logger.LogWarning("Tentativa de exclusão em Gira inexistente. Id: {GiraId}", id);
+                return false;
+            }
+
+            _logger.LogInformation("Gira removida com sucesso. Id: {GiraId}", id);
+            return true;
+        }
+
+        private static GiraResponse MapToResponse(Gira gira)
+        {
+            return new GiraResponse
+            {
+                Id = gira.Id,
+                Nome = gira.Nome,
+                Descricao = gira.Descricao,
+                Cura = gira.Cura,
+                Responsavel = gira.Responsavel,
+                DataHora = gira.DataHora,
+                Status = gira.Status.ToString(),
+                DataCriacao = gira.DataCriacao
+            };
+        }
+    }
 }
