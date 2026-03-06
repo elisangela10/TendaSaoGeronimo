@@ -150,6 +150,16 @@ using (var scope = app.Services.CreateScope())
 
     logger.LogInformation("Conexão com banco validada com sucesso no startup.");
 
+    // Compatibilidade de schema da tabela Giras (ambientes sem migration recente)
+    await dbContext.Database.ExecuteSqlRawAsync(
+        "ALTER TABLE \"Giras\" ADD COLUMN IF NOT EXISTS \"Cura\" text NOT NULL DEFAULT ''");
+
+    await dbContext.Database.ExecuteSqlRawAsync(
+        "ALTER TABLE \"Giras\" ADD COLUMN IF NOT EXISTS \"Status\" integer NOT NULL DEFAULT 0");
+
+    await dbContext.Database.ExecuteSqlRawAsync(
+        "ALTER TABLE \"Giras\" ADD COLUMN IF NOT EXISTS \"DataCriacao\" timestamp with time zone NOT NULL DEFAULT NOW()");
+
     var applyMigrations = app.Configuration.GetValue<bool>("Database:ApplyMigrationsOnStartup");
     if (applyMigrations)
     {
