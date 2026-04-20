@@ -5,7 +5,7 @@ WORKDIR /app
 # Copy project files
 COPY . ./
 
-# Restore and publish
+# Restaura dependências e compila
 RUN dotnet restore
 RUN dotnet publish -c Release -o out
 
