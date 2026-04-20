@@ -47,5 +47,23 @@ namespace CasaDeAxe.Application.Service
                 DataCriacao = user.DataCriacao
             };
         }
+
+        public async Task<IEnumerable<UserResponse>> GetAllAsync()
+        {
+            var users = await _userRepository.GetAllAsync();
+
+            return users.Select(user => new UserResponse
+            {
+                Id = user.Id,
+                NomeCompleto = user.NomeCompleto,
+                Email = user.Email,
+                Telefone = user.Telefone,
+                Username = user.Username,
+                RoleNome = user.Role?.Nome ?? string.Empty,
+                StatusNome = user.StatusUsuario?.Nome ?? string.Empty,
+                DataCriacao = user.DataCriacao,
+                UtimoLogin = user.UltimoLogin
+            });
+        }
     }
 }

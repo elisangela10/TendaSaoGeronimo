@@ -50,5 +50,15 @@ namespace CasaDeAxeAPI.Controllers
             _logger.LogInformation("Autenticação realizada com sucesso para o username: {Username}", request.Username);
             return Ok(new { Token = token });
         }
+
+
+        [HttpGet("GetUser")]
+        [AllowAnonymous]
+        public async Task<IActionResult>GetAll()
+        {
+            var users = await _service.GetAllAsync();
+            _logger.LogInformation("Consulta de usuários cadastrados realizada com sucesso.");
+            return Ok(users);
+        }
     }
 }

@@ -128,7 +128,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 var app = builder.Build();
 
 // 🔌 Porta dinâmica (Render)
-var port = Environment.GetEnvironmentVariable("PORT") ?? "500";
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
 app.Urls.Add($"http://*:{port}");
 
 // 🧠 Teste de conexão + migrations
