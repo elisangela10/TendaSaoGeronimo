@@ -1,24 +1,21 @@
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends libgssapi-krb5-2 \
-    && rm -rf /var/lib/apt/lists/*
-# Etapa 1: build da aplicação
+# Stage 1: build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
-# Copia arquivos do projeto
+# Copy project files
 COPY . ./
 
 # Restaura dependências e compila
 RUN dotnet restore
 RUN dotnet publish -c Release -o out
 
-# Etapa 2: imagem final
+# Stage 2: runtime
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgssapi-krb5-2 \
+    && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=build /app/out .
 
-# Expõe a porta padrão
 EXPOSE 80
-
-# Comando de execução
 ENTRYPOINT ["dotnet", "CasaDeAxeAPI.dll"]
