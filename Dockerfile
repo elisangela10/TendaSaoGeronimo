@@ -2,15 +2,22 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
-# Copia solution e csproj
+# copia solution
 COPY *.sln .
-COPY CasaDeAxeAPI/*.csproj ./CasaDeAxeAPI/
 
+# copia TODOS os csproj
+COPY CasaDeAxeAPI/*.csproj ./CasaDeAxeAPI/
+COPY CasaDeAxe.Domain/*.csproj ./CasaDeAxe.Domain/
+COPY CasaDeAxe.Application/*.csproj ./CasaDeAxe.Application/
+COPY CasaDeAxe.Infrastructure/*.csproj ./CasaDeAxe.Infrastructure/
+
+# restore
 RUN dotnet restore
 
-# Copia o resto do código (sem lixo)
-COPY CasaDeAxeAPI/. ./CasaDeAxeAPI/
+# copia tudo
+COPY . .
 
+# build
 WORKDIR /app/CasaDeAxeAPI
 RUN dotnet publish -c Release -o /app/out
 
