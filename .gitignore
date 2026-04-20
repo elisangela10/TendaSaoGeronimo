@@ -1,17 +1,26 @@
 ################################################################################
 # Visual Studio / .NET
 ################################################################################
-.vs/
+# User-specific files
 *.user
 *.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio folder
+.vs/
 
 # Build outputs
+[Bb]in/
+[Oo]bj/
 **/bin/
 **/obj/
 
 # NuGet / tooling
 *.nupkg
 *.snupkg
+packages/
+!packages/build/
 
 # Rider / VS Code
 .idea/
@@ -20,8 +29,13 @@
 # Logs / temp
 *.log
 *.tmp
+*.cache
+
 
 # Local databases and transient files
+.DS_Store
+Thumbs.db
+
 *.db
 *.db-shm
 *.db-wal
@@ -29,3 +43,6 @@
 # Uploaded/local runtime artifacts
 CasaDeAxeAPI/UploadedFiles/*
 !CasaDeAxeAPI/UploadedFiles/.gitkeep
+# Optional (segurança extra)
+*.dll
+*.exe
