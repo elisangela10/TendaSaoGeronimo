@@ -33,8 +33,8 @@ packages/
 
 
 # Local databases and transient files
-.DS_Store
-Thumbs.db
+#.DS_Store
+#Thumbs.db
 
 *.db
 *.db-shm

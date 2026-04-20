@@ -21,8 +21,11 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.6" />
     <PackageReference Include="Microsoft.OpenApi" Version="1.6.23" />
+    <PackageReference Include="Npgsql" Version="10.0.2" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+    <PackageReference Include="Supabase" Version="1.1.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="8.1.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="8.1.0" />
