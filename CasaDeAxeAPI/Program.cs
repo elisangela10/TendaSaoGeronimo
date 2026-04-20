@@ -20,6 +20,14 @@ var defaultConnection = builder.Configuration.GetConnectionString("DefaultConnec
             throw new InvalidOperationException("ConnectionStrings:DefaultConnection não configurada. Defina via variável de ambiente ou secret manager.");
         }
 
+var npgsqlConnectionBuilder = new NpgsqlConnectionStringBuilder(defaultConnection);
+if (!npgsqlConnectionBuilder.TryGetValue("GssEncMode", out _))
+{
+    npgsqlConnectionBuilder.GssEncMode = GssEncMode.Disable;
+}
+
+var normalizedConnectionString = npgsqlConnectionBuilder.ConnectionString;
+
 var jwtSecret = builder.Configuration["JwtSettings:SecretKey"];
     if (string.IsNullOrWhiteSpace(jwtSecret))
         {
@@ -127,7 +135,7 @@ builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 
 // Configuração do banco de dados PostgreSQL
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(normalizedConnectionString));
 
 // Injeção de dependências dos repositórios e serviços
 builder.Services.AddScoped<IUserRepository, UserRepository>();
