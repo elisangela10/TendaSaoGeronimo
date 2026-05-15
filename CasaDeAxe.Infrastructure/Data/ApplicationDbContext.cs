@@ -21,15 +21,15 @@ namespace CasaDeAxe.Infrastructure.Data
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Role>().HasData(
-                new Role { Id = -1, Nome = "ADM", Ativo = true },
-                new Role { Id = -2, Nome = "PaiDeSanto", Ativo = true },
-                new Role { Id = -3, Nome = "Filho", Ativo = true },
-                new Role { Id = -4, Nome = "Assistencia", Ativo = true }
+                new Role { Id = 1, Nome = "ADM", Ativo = true },
+                new Role { Id = 2, Nome = "PaiDeSanto", Ativo = true },
+                new Role { Id = 3, Nome = "Filho", Ativo = true },
+                new Role { Id = 4, Nome = "Assistencia", Ativo = true }
             );
 
             modelBuilder.Entity<StatusUsuario>().HasData(
-                new StatusUsuario { Id = -1, Nome = "Ativo" },
-                new StatusUsuario { Id = -2, Nome = "Inativo" }
+                new StatusUsuario { Id = 1, Nome = "Ativo" },
+                new StatusUsuario { Id = 2, Nome = "Inativo" }
             );
         }
 

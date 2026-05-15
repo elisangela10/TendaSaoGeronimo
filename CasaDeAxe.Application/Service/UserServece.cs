@@ -23,8 +23,8 @@ namespace CasaDeAxe.Application.Service
                 Telefone = request.Telefone,
                 Username = request.Username,
                 Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                RoleId = request.RoleId > 0 ? request.RoleId : -4,
-                StatusUsuarioId = request.StatusUsuarioId > 0 ? request.StatusUsuarioId : -1,
+                RoleId = request.RoleId > 0 ? request.RoleId : 4,
+                StatusUsuarioId = request.StatusUsuarioId > 0 ? request.StatusUsuarioId : 1,
                 DataCriacao = DateTime.UtcNow
             };
 
