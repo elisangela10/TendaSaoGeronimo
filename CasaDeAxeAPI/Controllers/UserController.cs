@@ -32,7 +32,7 @@ namespace CasaDeAxeAPI.Controllers
         {
             var user = await _service.RegisterAsync(request);
             _logger.LogInformation("Usuário registrado com sucesso. Id: {UserId}, Username: {Username}", user.Id, user.Username);
-            return CreatedAtAction(nameof(Register), new { id = user.Id }, user);
+            return StatusCode(201, user);
         }
 
         [HttpPost("login")]
