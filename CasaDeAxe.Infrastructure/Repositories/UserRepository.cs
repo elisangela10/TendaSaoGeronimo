@@ -85,7 +85,8 @@ namespace CasaDeAxe.Infrastructure.Repositories
                 .Include(u => u.StatusUsuario)
                 .FirstOrDefaultAsync(u =>
                     u.Username == login ||
-                    u.Email.ToLower() == login
+                    u.Email.ToLower() == login || 
+                    u.Telefone == login
                 );
         }
     

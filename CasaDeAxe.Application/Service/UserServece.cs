@@ -14,8 +14,50 @@ namespace CasaDeAxe.Application.Service
             _userRepository = userRepository;
         }
 
+        //public async Task<UserResponse> RegisterAsync(UserRegisterRequest request)
+        //{
+        //    var user = new User
+        //    {
+        //        NomeCompleto = request.NomeCompleto,
+        //        Email = request.Email,
+        //        Telefone = request.Telefone,
+        //        Username = request.Username,
+        //        Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
+        //        RoleId = request.RoleId > 0 ? request.RoleId : 1,
+        //        StatusUsuarioId = request.StatusUsuarioId > 0 ? request.StatusUsuarioId : 1,
+        //        DataCriacao = DateTime.UtcNow
+        //    };
+
+        //    await _userRepository.AddAsync(user)    ;
+        //    var role = await _userRepository.GetRoleByIdAsync(user.RoleId);
+        //    var status = await _userRepository.GetStatusByIdAsync(user.StatusUsuarioId);
+
+        //    if (role == null || status == null)
+        //        throw new Exception("Role ou Status inválido.");
+
+        //    return new UserResponse
+        //    {
+        //        Id = user.Id,
+        //        NomeCompleto = user.NomeCompleto,
+        //        Email = user.Email,
+        //        Telefone = user.Telefone,
+        //        Username = user.Username,
+        //        RoleNome = role.Nome,
+        //        StatusNome = status.Nome,
+        //        DataCriacao = user.DataCriacao
+        //    };
+        //}
+
         public async Task<UserResponse> RegisterAsync(UserRegisterRequest request)
         {
+            var role = await _userRepository.GetRoleByIdAsync(request.RoleId);
+            if (role == null)
+                throw new Exception($"RoleId {request.RoleId} não encontrado.");
+
+            var status = await _userRepository.GetStatusByIdAsync(request.StatusUsuarioId);
+            if (status == null)
+                throw new Exception($"StatusUsuarioId {request.StatusUsuarioId} não encontrado.");
+
             var user = new User
             {
                 NomeCompleto = request.NomeCompleto,
@@ -23,17 +65,12 @@ namespace CasaDeAxe.Application.Service
                 Telefone = request.Telefone,
                 Username = request.Username,
                 Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                RoleId = request.RoleId > 0 ? request.RoleId : 1,
-                StatusUsuarioId = request.StatusUsuarioId > 0 ? request.StatusUsuarioId : 1,
+                RoleId = request.RoleId,
+                StatusUsuarioId = request.StatusUsuarioId,
                 DataCriacao = DateTime.UtcNow
             };
 
-            await _userRepository.AddAsync(user)    ;
-            var role = await _userRepository.GetRoleByIdAsync(user.RoleId);
-            var status = await _userRepository.GetStatusByIdAsync(user.StatusUsuarioId);
-
-            if (role == null || status == null)
-                throw new Exception("Role ou Status inválido.");
+            await _userRepository.AddAsync(user);
 
             return new UserResponse
             {
@@ -47,7 +84,6 @@ namespace CasaDeAxe.Application.Service
                 DataCriacao = user.DataCriacao
             };
         }
-
         public async Task<IEnumerable<UserResponse>> GetAllAsync()
         {
             var users = await _userRepository.GetAllAsync();

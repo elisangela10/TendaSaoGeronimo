@@ -39,16 +39,16 @@ namespace CasaDeAxeAPI.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            var user = await _userRepository.GetByUsernameAsync(request.Username);
+            var user = await _userRepository.GetByLoginAsync(request .Login);
             if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
             {
-                _logger.LogWarning("Falha de autenticação para o username: {Username}", request.Username);
+                _logger.LogWarning("Falha de autenticação para o login: {Login}", request.Login);
                 return Unauthorized("Usuário ou senha inválidos.");
             }
 
             var token = _jwtService.GenerateToken(user);
-            _logger.LogInformation("Autenticação realizada com sucesso para o username: {Username}", request.Username);
-            return Ok(new { Token = token });
+            _logger.LogInformation("Autenticação realizada com sucesso para o login: {Login}", request.Login);
+            return Ok(new { Token = token });   
         }
 
 
